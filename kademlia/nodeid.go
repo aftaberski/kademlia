@@ -67,12 +67,12 @@ func (node NodeID) Xor(other interface{}) (ret NodeID) {
 }
 
 func (node NodeID) PrefixLen() (ret int) {
+	// for each byte in IDLength
 	for i := 0; i < IDLength; i++ {
+		// Check each byte in byte array
 		for j := 0; j < 8; j++ {
 			// binary shift
 			if (node[i]>>uint8(7-j))&0x1 != 0 {
-				fmt.Println("This is i*8:", i*8)
-				fmt.Println("This is what we're returning:", i*8+j)
 				return i*8 + j
 			}
 		}
