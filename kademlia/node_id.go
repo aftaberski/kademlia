@@ -3,11 +3,9 @@ package kademlia
 import (
 	"encoding/hex"
 	"fmt"
+	"log"
 	"math/rand"
 )
-
-// IDLength is the length of the NodeID
-const IDLength = 20
 
 // NodeID is a byte slice of IDLength
 type NodeID [IDLength]byte
@@ -29,9 +27,16 @@ func NewNodeID(s string) (ret NodeID) {
 
 // NewRandomNodeID creates a new NodeID
 func NewRandomNodeID() (ret NodeID) {
-	for i := 0; i < IDLength; i++ {
-		ret[i] = uint8(rand.Intn(256))
+	buffer := make([]byte, IDLength)
+	_, err := rand.Read(buffer)
+	if err != nil {
+		log.Print(err)
 	}
+
+	for i, b := range buffer {
+		ret[i] = b
+	}
+
 	return
 }
 
@@ -49,8 +54,6 @@ func (node NodeID) Equals(other NodeID) bool {
 // byte comes first (big-endian)
 func (node NodeID) Less(other interface{}) bool {
 	for i := 0; i < IDLength; i++ {
-		fmt.Println(node[i])
-		fmt.Println(other.(NodeID)[i])
 		if node[i] != other.(NodeID)[i] {
 			return node[i] < other.(NodeID)[i]
 		}
@@ -66,16 +69,14 @@ func (node NodeID) Xor(other interface{}) (ret NodeID) {
 	return
 }
 
-func (node NodeID) PrefixLen() (ret int) {
-	// for each byte in IDLength
+func (node NodeID) PrefixLen(other NodeID) int {
+	distance := node.Xor(other)
 	for i := 0; i < IDLength; i++ {
-		// Check each byte in byte array
 		for j := 0; j < 8; j++ {
-			// binary shift
-			if (node[i]>>uint8(7-j))&0x1 != 0 {
+			if (distance[i]>>uint8(7-j))&0x1 != 0 {
 				return i*8 + j
 			}
 		}
 	}
-	return IDLength*8 - 1
+	return -1
 }
