@@ -1,6 +1,10 @@
 package kademlia
 
-import "fmt"
+import (
+	"fmt"
+	"net"
+	"net/rpc"
+)
 
 type Kademlia struct {
 	routes *RoutingTable
@@ -36,4 +40,14 @@ func (k *Kademlia) HandleRPC(request, response *RPCHeader) error {
 
 type KademliaCore struct {
 	kad *Kademlia
+}
+
+func (k *Kademlia) Serve() (err error) {
+	rpc.Register(&KademliaCore{k})
+
+	l, err := net.Listen("tcp", k.routes.contact.Address)
+	if err == nil {
+		go rpc.Accept(l)
+	}
+	return
 }
