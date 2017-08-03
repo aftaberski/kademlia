@@ -14,6 +14,12 @@ func NewContact(node NodeID, address string) Contact {
 
 type Contacts []Contact
 
+// Implement the sort.Interface which requires
+// Len, Less, and Swap methods
+func (h Contacts) Len() int {
+	return len(h)
+}
+
 func (h Contacts) Less(i, j int) bool {
 	return h[i].ID.Less(h[j].ID)
 }
