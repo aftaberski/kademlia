@@ -21,9 +21,13 @@ type FindNodeResponse struct {
 	Contacts
 }
 
-func (k *Kademlia) sendQuery(contact Contact, node NodeID) {
+// sendQuery sends FindNode RPC to the specified contact
+// Then sends the result (list of Contacts) to the done channel
+// so we can call sendQuery in a goroutine
+func (k *Kademlia) sendQuery(contact Contact, node NodeID, done chan Contacts) {
 	client, err := RPCClient(contact)
 	if err != nil {
+		done <- nil
 		return
 	}
 
@@ -31,7 +35,12 @@ func (k *Kademlia) sendQuery(contact Contact, node NodeID) {
 	res := FindNodeResponse{}
 
 	err = client.Call("KademliaCore.FindNode", &req, &res)
-	// TODO: finish this
+	if err != nil {
+		done <- nil
+		return
+	}
+
+	done <- res.Contacts
 }
 
 func (kc *KademliaCore) FindNode(req FindNodeRequest, res *FindNodeResponse) error {
