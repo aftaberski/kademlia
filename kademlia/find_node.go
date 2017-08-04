@@ -52,3 +52,13 @@ func (kc *KademliaCore) FindNode(req FindNodeRequest, res *FindNodeResponse) err
 
 	return nil
 }
+
+func (k *Kademlia) IterativeFindNode(node NodeID, delta int, contacts chan Contacts) {
+	done := make(chan Contacts)
+	ret := make(Contacts, BucketSize)
+	frontier := make(Contacts, BucketSize)
+	seen := make(map[string]bool)
+
+	// Finish this :)
+
+}
