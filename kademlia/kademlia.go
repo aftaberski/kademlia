@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net"
 	"net/rpc"
+	"time"
 )
 
 type Kademlia struct {
@@ -40,6 +41,15 @@ func (k *Kademlia) HandleRPC(request, response *RPCHeader) error {
 
 type KademliaCore struct {
 	kad *Kademlia
+}
+
+func RPCClient(contact Contact) (*rpc.Client, error) {
+	connection, err := net.DialTimeout("tcp", contact.Address, 5*time.Second)
+	if err != nil {
+		return nil, err
+	}
+
+	return rpc.NewClient(connection), nil
 }
 
 func (k *Kademlia) Serve() (err error) {
