@@ -1,5 +1,7 @@
 package kademlia
 
+import "container/heap"
+
 type FindNodeRequest struct {
 	RPCHeader
 	NodeID
@@ -57,8 +59,15 @@ func (k *Kademlia) IterativeFindNode(node NodeID, delta int, contacts chan Conta
 	done := make(chan Contacts)
 	ret := make(Contacts, BucketSize)
 	frontier := make(Contacts, BucketSize)
+
+	// So we don't accidentally add the same contact twice
 	seen := make(map[string]bool)
 
-	// Finish this :)
+	// Initialize ret, frontier, and seen lists with local nodes
+	for _, node := range k.routes.FindClosest(node, delta) {
+		ret = append(ret, node)
+		heap.Push(&frontier, node)
+		seen[node.ID.String()] = true
+	}
 
 }
